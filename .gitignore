@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+.data/
+.runtime/
+node_modules/
+__pycache__/
+*.py[cod]
+*.log
+stack/backtalk/backtalk.json
+stack/barehands/barehands.json
+stack/ai-visualizer/ai-visualizer.json
+stack/barehands/state/

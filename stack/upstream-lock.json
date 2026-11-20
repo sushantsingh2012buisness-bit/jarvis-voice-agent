@@ -1,0 +1,22 @@
+{
+  "fullstack-agent": {
+    "url": "https://github.com/jaredrhod/fullstack-agent",
+    "commit": "5bb159f47dbd6fa8f108651d0532a43aef16346b"
+  },
+  "backtalk": {
+    "url": "https://github.com/jaredrhod/backtalk",
+    "commit": "84b3a6cd321060cabb74aad6ebe794621cf99bd3"
+  },
+  "ai-visualizer": {
+    "url": "https://github.com/jaredrhod/ai-visualizer",
+    "commit": "6921e1d4b06bdd4a34c5264882d5257c4d5f70fd"
+  },
+  "barehands": {
+    "url": "https://github.com/jaredrhod/barehands",
+    "commit": "eb23bed2d772f9d5a24de26fb92f46c3c76d69cf"
+  },
+  "ai-memory-vault": {
+    "url": "https://github.com/jaredrhod/ai-memory-vault",
+    "commit": "659bba9c8b351c937dd393b3042801d1ff1b502c"
+  }
+}
