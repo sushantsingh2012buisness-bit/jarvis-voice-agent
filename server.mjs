@@ -60,11 +60,17 @@ export const server = http.createServer(async(req,res)=>{
     if(req.method==='GET' && staticFiles[url.pathname]) {
       const [file,type]=staticFiles[url.pathname]; return send(res,200,readFileSync(join(root,'public',file)),type);
     }
-    if(req.method==='GET' && url.pathname==='/api/status') return send(res,200,{
-      csrf,paused,providers:Object.fromEntries(Object.entries(providerConfig()).map(([name,p])=>[name,{configured:!!(p.key&&p.model),model:p.model||null}])),
-      fish:{configured:!!process.env.FISH_API_KEY,model:process.env.FISH_TTS_MODEL||'s2.1-pro-free'},
-      codex:bridge.status(),googleConnected:false,macConnected:false,...state
-    });
+    if(req.method==='GET' && url.pathname==='/api/status') {
+      const tools=bridge.toolNames||[];
+      const has=prefix=>tools.some(name=>name.startsWith(prefix+'.'));
+      return send(res,200,{
+        csrf,paused,providers:Object.fromEntries(Object.entries(providerConfig()).map(([name,p])=>[name,{configured:!!(p.key&&p.model),model:p.model||null}])),
+        fish:{configured:!!process.env.FISH_API_KEY,model:process.env.FISH_TTS_MODEL||'s2.1-pro-free'},
+        codex:bridge.status(),googleConnected:has('google_calendar')||has('google_drive')||has('google_sheets'),
+        googleCalendarConnected:has('google_calendar'),googleDriveConnected:has('google_drive'),
+        googleSheetsConnected:has('google_sheets'),gmailConnected:has('gmail'),macConnected:false,...state
+      });
+    }
     if(req.method==='GET' && url.pathname==='/api/voice/events') {
       if(url.searchParams.get('token')!==csrf) return send(res,403,{error:'Session expired.'});
       const record=bridge.records[url.searchParams.get('id')];if(!record)return send(res,404,{error:'Unknown utterance.'});
