@@ -66,6 +66,7 @@ from backtalk.brain import WarmBrain
 from backtalk.config import CFG
 from backtalk.ears import (Ears, explain_audio_failure, record_held,
                            warm as warm_ears)
+from backtalk.gesture_mode import is_gesture_mode_on, open_gesture_board
 from backtalk.mouth import Mouth
 from backtalk.ptt import PTTListener
 from backtalk.wake import WakeGate
@@ -744,7 +745,15 @@ async def amain():
         _deny_pending()
         await brain.reset_turn()
         say_after = None
-        if verb == "clear":
+        if verb == "gestureon":
+            resp = ""
+            if open_gesture_board():
+                log("[console] gesture board opened in the default browser")
+                mouth.say("Opening gesture mode. Allow camera access in the browser if prompted.")
+            else:
+                log("[console] could not open the gesture board")
+                mouth.say("I couldn't open the gesture board. Check that the Jarvis stack is running, then open the Barehands shortcut.")
+        elif verb == "clear":
             resp = await brain.command("/clear")
             say_after = "Cleared. Fresh slate."
         elif verb == "compact":
@@ -908,6 +917,8 @@ async def amain():
                 pass
             speak_task = None
         verb = verb or console_match(text)
+        if verb is None and is_gesture_mode_on(text):
+            verb = "gestureon"
         if verb:
             await run_console(verb)
             return True

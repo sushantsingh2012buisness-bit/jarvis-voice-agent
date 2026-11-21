@@ -15,7 +15,7 @@ On first use, Jarvis creates a persistent Codex conversation and saves its ID un
 
 ## Optional gesture board
 
-Run `Jarvis Barehands.cmd` for the gesture board at `http://127.0.0.1:8794/stage.html`. Use Chrome and grant camera access. The main voice interface works without the gesture board.
+Say **“Hey Jarvis, gesture mode on”** to open the local gesture board in a new browser tab. Allow camera access when the browser asks. You can also run `Jarvis Barehands.cmd` directly. The main voice interface works without the gesture board.
 
 ## What is connected
 
@@ -24,6 +24,8 @@ Run `Jarvis Barehands.cmd` for the gesture board at `http://127.0.0.1:8794/stage
 - **Speech output:** Fish Audio when configured; local Kokoro is available as an alternative.
 - **Memory:** local Markdown files under `.data/vault/`.
 - **Actions:** tools available to the signed-in Codex session may be used under the platform’s normal permissions and per-action approval flow. Gmail and Calendar depend on the user’s Codex connections. Browser/desktop access depends on available tools and permissions.
+
+The wake-word mode keeps the microphone open for local speech detection; ordinary speech is discarded until the wake phrase is heard. For a lower-mic-use session, switch to push-to-talk and hold **Home**.
 
 ## Privacy and safety
 
