@@ -32,7 +32,7 @@ export class Rpc extends EventEmitter {
 
 export class CodexBridge extends EventEmitter {
   constructor(dataDir,{ephemeral=false}={}) {
-    super();this.dir=dataDir;this.file=join(dataDir,'voice-turns.json');this.threadFile=join(dataDir,'codex-thread.json');this.memory=new MemoryVault(process.env.JARVIS_VAULT_DIR||join(dataDir,'vault'));this.ephemeral=ephemeral;this.records=existsSync(this.file)?JSON.parse(readFileSync(this.file,'utf8')):{};this.approvals=new Map();this.active=null;this.turnOptions={};
+    super();this.dir=dataDir;this.file=join(dataDir,'voice-turns.json');this.threadFile=join(dataDir,'codex-thread.json');this.memory=new MemoryVault(process.env.JARVIS_VAULT_DIR||join(dataDir,'vault'));this.ephemeral=ephemeral;this.records=existsSync(this.file)?JSON.parse(readFileSync(this.file,'utf8')):{};this.approvals=new Map();this.active=null;this.turnOptions={effort:'low'};
     const saved=this.readThreadId();const configured=process.env.JARVIS_CODEX_THREAD_ID;
     this.threadId=ephemeral?null:(configured||saved||null);
     if(this.threadId)this.persistThreadId();

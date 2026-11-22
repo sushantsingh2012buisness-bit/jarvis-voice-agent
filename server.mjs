@@ -138,5 +138,5 @@ export const server = http.createServer(async(req,res)=>{
   } catch(e) { if(!res.headersSent && !res.destroyed) send(res,e.status||500,{error:e instanceof AppError?e.message:'Request failed. No action was completed.'}); }
 });
 if(process.argv[1] && import.meta.url===pathToFileURL(process.argv[1]).href) {
-  server.listen(port,'127.0.0.1',()=>console.log(`Jarvis local preview: http://127.0.0.1:${port}`));
+  server.listen(port,'127.0.0.1',()=>{console.log(`Jarvis local preview: http://127.0.0.1:${port}`);bridge.connect().catch(()=>{});});
 }

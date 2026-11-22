@@ -1,4 +1,4 @@
-param([ValidateSet('voice','hands','chat','stop')][string]$Mode='voice')
+param([ValidateSet('browser','voice','hands','chat','stop')][string]$Mode='browser')
 $ErrorActionPreference='Stop'
 $jarvisRoot=$PSScriptRoot
 & node (Join-Path $jarvisRoot 'configure-stack.mjs')
@@ -23,7 +23,13 @@ if($Mode -eq 'stop'){
  '{}'|Set-Content $jarvisRegistry
  exit
 }
-if(-not(Test-Path $jarvisPython)){throw 'Run Install Local Voice.cmd once to install the local speech runtime.'}
+if($Mode -eq 'browser' -and $jarvisProcesses.ContainsKey('voice')){
+ foreach($child in @($jarvisProcesses['voice'].children)){if(Test-OwnedProcess $child){Stop-Process -Id $child.pid -ErrorAction SilentlyContinue}}
+ if(Test-OwnedProcess $jarvisProcesses['voice']){Stop-Process -Id $jarvisProcesses['voice'].pid -ErrorAction SilentlyContinue}
+ $jarvisProcesses.Remove('voice')
+ $jarvisProcesses|ConvertTo-Json -Depth 5|Set-Content $jarvisRegistry
+}
+if(-not(Test-Path $jarvisPython) -and $Mode -in @('voice','hands')){throw 'Run Install Local Voice.cmd once to install the local speech runtime.'}
 $env:HF_HOME=Join-Path $jarvisRoot '.runtime/models'
 $env:HF_HUB_DISABLE_SYMLINKS_WARNING='1'
 $env:PYTHONUTF8='1'
@@ -45,7 +51,7 @@ try{$s=Invoke-RestMethod -Uri 'http://127.0.0.1:4320/api/status' -TimeoutSec 2;$
 if(-not $running){Start-Owned 'server' (Get-Command node).Source ('"'+(Join-Path $jarvisRoot 'server.mjs')+'"') $jarvisRoot 'server.mjs';Start-Sleep -Seconds 1}
 $boardRunning=$false
 try{$b=Invoke-RestMethod -Uri 'http://127.0.0.1:8794/config' -TimeoutSec 2;$boardRunning=($b.name -eq 'Jarvis')}catch{}
-if(-not $boardRunning){Start-Owned 'barehands' $jarvisPython ('"'+(Join-Path $jarvisRoot 'stack/barehands/server.py')+'"') (Join-Path $jarvisRoot 'stack/barehands') 'barehands'}
+if((Test-Path $jarvisPython) -and -not $boardRunning){Start-Owned 'barehands' $jarvisPython ('"'+(Join-Path $jarvisRoot 'stack/barehands/server.py')+'"') (Join-Path $jarvisRoot 'stack/barehands') 'barehands'}
 if($Mode -eq 'chat'){
  $codex=Get-ChildItem (Join-Path $env:LOCALAPPDATA 'OpenAI/Codex/bin') -Filter codex.exe -Recurse|Sort-Object LastWriteTime -Descending|Select-Object -First 1
  if(-not $codex){throw 'Sign in to Codex first.'}
@@ -56,6 +62,6 @@ if($Mode -eq 'chat'){
  & $codex.FullName resume $threadId
  exit
 }
-Start-Owned 'voice' $jarvisPython '-m backtalk.main' (Join-Path $jarvisRoot 'stack/backtalk') 'backtalk.main'
-$url=if($Mode -eq 'hands'){'http://127.0.0.1:8794/stage.html'}else{'http://127.0.0.1:4320/faces/board/'}
-Write-Output "Jarvis is running. Open $url. Say Hey Jarvis to speak, or hold Home."
+if($Mode -eq 'voice'){Start-Owned 'voice' $jarvisPython '-m backtalk.main' (Join-Path $jarvisRoot 'stack/backtalk') 'backtalk.main'}
+$url=switch($Mode){'hands'{'http://127.0.0.1:8794/stage.html'} 'voice'{'http://127.0.0.1:4320/faces/board/'} default{'http://127.0.0.1:4320/'}}
+Write-Output "Jarvis is running. Open $url. In the browser, click the core once to enable microphone access, then say Hey Jarvis."

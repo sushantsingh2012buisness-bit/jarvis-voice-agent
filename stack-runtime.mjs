@@ -4,7 +4,6 @@ import {join,resolve,sep} from 'node:path';
 const mime={'.js':'text/javascript','.html':'text/html','.png':'image/png','.wav':'audio/wav','.ttf':'font/ttf','.json':'application/json','.txt':'text/plain'};
 export function stackRoute(root,req,res,url){if(req.method!=='GET')return false;const visual=join(root,'stack','ai-visualizer'),bus=join(root,'.data','signals');
  const send=(body,type='application/json')=>{res.writeHead(200,{'Content-Type':type,'Cache-Control':'no-store'});res.end(type==='application/json'?JSON.stringify(body):body);};
- if(url.pathname==='/'){res.writeHead(302,{Location:'/faces/board/'});res.end();return true;}
  if(url.pathname==='/config'){send({name:'Jarvis',face:'board',thinking_sound:true,badge:'',faces:['board','radial','rain','neural'].map(id=>({id,...JSON.parse(readFileSync(join(visual,'faces',id,'face.json'),'utf8'))}))});return true;}
  if(url.pathname==='/state'){
    let state='idle',samples=Array(64).fill(0),level=0,loading=false;

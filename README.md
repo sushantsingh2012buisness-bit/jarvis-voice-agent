@@ -1,47 +1,51 @@
-# Jarvis Voice Agent
+# Jarvis — Codex adaptation of fullstack-agent
 
-Jarvis is a local-first voice assistant that sends spoken requests to the signed-in Codex account and reads replies aloud. It combines the Codex voice bridge, local Whisper speech recognition, Fish Audio or local Kokoro speech, a persistent Codex conversation, a local memory vault, and an optional Barehands gesture board.
+The localhost root is Jarvis voice chat; the original circuit-board visualizer remains at `/faces/board/`. Its four face HTML files and shared visual core are byte-for-byte identical to the pinned upstream revision, with upstream licenses and attribution retained.
 
-## Quick start (Windows)
+## Use it
 
-1. Install Node.js 22 or newer, Python (for the runtime installer), and the Codex CLI. Sign in with `codex login` and confirm `codex login status`.
-2. Clone this repo and open a terminal in its folder.
-3. Run `Install Local Voice.cmd` once. This creates an isolated Python 3.12 runtime; speech models download on first use.
-4. Copy `.env.example` to `.env`. Fish Audio is optional; without a Fish key, Jarvis can use local Kokoro speech.
-5. Run `Talk to Jarvis.cmd` and open `http://127.0.0.1:4320/faces/board/`.
-6. Say **“Hey Jarvis, what is two plus two?”** or hold **Home** to talk directly.
+Run **Talk to Jarvis.cmd** (or **Start Jarvis.cmd**). It starts the browser backend and opens **http://localhost:4320/**. Click the orb once and allow microphone access. After that, Jarvis starts wake listening on later opens: say **“Hey Jarvis”** and your request; or say **“Hey Jarvis”**, hear **“Yes?”**, then give your request within eight seconds. Click the orb again to turn wake listening off. Replies stream into the visible chat panel; fast browser speech is the default and Fish Audio is optional. Browser wake-word recognition uses the browser speech service; it is not local Whisper. The separate native mode (`launch-stack.ps1 voice`) uses local Whisper and should not be run at the same time as browser wake listening.
 
-On first use, Jarvis creates a persistent Codex conversation and saves its ID under `.data/`. To use an existing conversation, set `JARVIS_CODEX_THREAD_ID` in the local `.env` before starting. That value is private and must never be committed.
+**Space** runs the original cinematic flythrough. **F** toggles fullscreen. The original sound control enables the thinking sound after browser audio permission. Other original faces are at `/faces/radial/`, `/faces/rain/`, `/faces/neural/`; `/gallery` is the original gallery.
 
-## Optional gesture board
-
-Say **“Hey Jarvis, gesture mode on”** to open the local gesture board in a new browser tab. Allow camera access when the browser asks. You can also run `Jarvis Barehands.cmd` directly. The main voice interface works without the gesture board.
+**Jarvis Barehands.cmd** opens the original gesture board at **http://127.0.0.1:8794/stage.html**. Use Chrome for camera access. The board retains the original notes, image, 3D, pinch/drag/scale/clap/claw gestures and OBS render mode. MediaPipe, its hand model, and three.js are cached locally. Camera permission is still required. The in-app browser did not finish camera startup during verification, so real gestures are not claimed as tested.
 
 ## What is connected
 
-- **Brain:** the authenticated Codex App Server session. Jarvis selects a model advertised to the signed-in account; no separate model API key is required.
-- **Speech input:** local Whisper small.en with wake-word detection and push-to-talk.
-- **Speech output:** Fish Audio when configured; local Kokoro is available as an alternative.
-- **Memory:** local Markdown files under `.data/vault/`.
-- **Actions:** tools available to the signed-in Codex session may be used under the platform’s normal permissions and per-action approval flow. Gmail and Calendar depend on the user’s Codex connections. Browser/desktop access depends on available tools and permissions.
+- **Brain:** existing ChatGPT sign-in through Codex app-server. No extra AI API key. One persistent destination is saved privately for this installation. Do not commit its thread ID. Desktop live history refresh remains unverified; the bridge refuses a resume when saved history reports a running turn.
+- **Browser input:** Web Speech Recognition provides continuous wake-word listening after the user enables microphone access. It recognizes “Hey Jarvis” in the browser speech service, then sends the request text to the Codex bridge. The separate native voice mode uses local Whisper small.en.
+- **Voice output:** fast browser speech synthesis is the default and speaks streamed replies as they arrive. Fish Audio is optional for a more natural voice; credentials remain only in the private `.env`.
+- **Memory:** user-owned Markdown vault in `.data/vault`, containing an index, project notes, job templates, daily logs and priorities. Relevant notes are retrieved for each voice turn; completed turns are logged once. Codex can read and maintain these notes with its tools. The board's Memory orb reads the same vault. Compatible with Obsidian; no existing personal vault was scanned or imported.
+- **Actions:** Gmail and Calendar get-profile calls succeeded through the real Codex bridge. Computer-use tools are discoverable, but inventory does not prove all desktop actions. The board's command endpoint can present notes and allowed media. Queued board commands are not called visible until the rendered state confirms them.
 
-The wake-word mode keeps the microphone open for local speech detection; ordinary speech is discarded until the wake phrase is heard. For a lower-mic-use session, switch to push-to-talk and hold **Home**.
+## Voice controls
 
-## Privacy and safety
+In browser mode, click the orb once to enable wake listening; the page replies “Yes?” to the wake phrase and resumes listening after spoken answers. A chat panel also accepts typed messages. Click the orb or Stop to turn the microphone off. Use Chrome or Edge for browser speech recognition. Low reasoning effort is the default to favor quick voice turns. The microphone can hear room speech while enabled; only requests after “Hey Jarvis” are sent to Codex.
 
-The local server binds to `127.0.0.1`. API keys belong in the local `.env`; memory, Codex chat IDs, model downloads, and runtime files stay in ignored local folders. Never paste credentials into an LLM chat or commit them. Jarvis does not enable blanket auto-approval. Platform permissions and individual action approvals remain in force.
+**Compact the session** requests Codex compaction. **Set effort to low/medium/high/xhigh** changes reasoning effort. Deep/fast voice presets change effort on the same Codex model. **Usage report** reports completed voice turns; it does not invent token costs. Unlike the Claude version, clearing the saved session and blanket auto-approval are not enabled. Platform permissions remain in force; approvals apply to individual actions. Unsupported approval types fail closed.
 
-Voice interaction requires a working microphone and speakers. Browser/camera behavior and desktop integrations vary by machine and account; verify those locally. Do not treat the app as successful until you hear a spoken reply from your own microphone test.
+## Launchers and ownership
 
-## Development
+Launchers use the existing source folder and track exact process IDs plus creation timestamps. Repeated launches reuse services. Stop interrupts the active voice turn, then stops only matching owned processes. **Chat with Jarvis.cmd** resumes the same conversation in the Codex terminal; do not use it concurrently with voice. The root page has a live chat panel and typed-message input alongside voice controls.
 
-```powershell
-npm test
-node --check server.mjs
-```
+## Tested on 10 November 2026
 
-See [`CLONE_AND_START.md`](CLONE_AND_START.md) for instructions an LLM coding agent can follow after cloning, and [`AGENTS.md`](AGENTS.md) for repository-specific safety guidance.
+- All 13 automated tests passed. Board command delivery and HTTP boundary checks passed. Repeated launch, complete stop (all three listeners closed), and restart passed with child-process tracking.
 
-## Sources and license
+- Latest Codex bridge smoke check: short reply completed in 2.72 seconds; Fish Audio returned playable MP3 audio. Duplicate submission returned the same turn, SSE replay worked, interruption completed.
+- Native test: actual microphone stream opened (1,600 samples, no overflow); a known Fish sample was transcribed locally; that transcript reached a real ephemeral Codex test session; the response played through the native speaker stream and published a fresh 64-sample waveform. The generated audio input avoids inventing a user-spoken result. Real user speech through the Home key remains to be exercised by the user.
+- Local Kokoro generated 73,200 samples at 24 kHz. Whisper transcription works offline after model installation.
+- All four original visual faces and core verified byte-for-byte against upstream; the circuit-board screen was checked in the browser.
+- Webcam gesture operation and immediate desktop Recent/history synchronization remain unverified. No extra saved test chat was created; test sessions were ephemeral.
 
-Jarvis combines and adapts the repositories named in [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md). The project and adapted components are distributed under AGPL-3.0-or-later. Preserve upstream notices when modifying or redistributing.
+## Installation and updates
+
+The original local installation is already configured and running. The source ZIP excludes credentials, memory, logs, model caches, and the Python runtime. On a separate installation: install Node.js, Python (to bootstrap the isolated voice runtime), and Codex, sign in to Codex, run **Install Local Voice.cmd**, and configure Fish privately in `.env` or choose local Kokoro. The destination thread ID is personal to this installation.
+
+`requirements-voice.lock` records tested dependency versions. `stack/upstream-lock.json` records exact upstream commits. `node check-updates.mjs` reports newer upstream commits without overwriting the Codex adaptation or memory. Ask Codex to apply updates and retest the adapter.
+
+## Source and licensing
+
+Based on Jared Rhodenizer's [fullstack-agent](https://github.com/jaredrhod/fullstack-agent), [backtalk](https://github.com/jaredrhod/backtalk), [ai-visualizer](https://github.com/jaredrhod/ai-visualizer), [barehands](https://github.com/jaredrhod/barehands), and [ai-memory-vault](https://github.com/jaredrhod/ai-memory-vault). See LICENSE and THIRD-PARTY-NOTICES.md. Code adaptations are AGPL-3.0-or-later; upstream memory templates retain CC BY-SA 4.0. Full source is included.
+
+Codex protocol: https://learn.chatgpt.com/docs/app-server
